@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOLARS-APP</title>
+    <style>
+      :root {
+        --bg-color: #f0f0f0;
+        --text-color: #222;
+        --titlebar-color: #dddddd;
+        --font-weight: normal;
+        --active-tab-bg: #ff6600;
+        --active-tab-color: #fff;
+        --toggle-checked-bg: #ff6600;
+      }
+
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        color: var(--text-color);
+        user-select: none;
+        overflow: hidden;
+        font-weight: var(--font-weight);
+      }
+
+      #app-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+
+      #background-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+      }
+
+      #titlebar {
+        height: 50px;
+        background: var(--titlebar-color);
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+        justify-content: space-between;
+        z-index: 1;
+      }
+
+      #titlebar-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+
+      #titlebar-left img {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        margin-right: 12px;
+      }
+
+      #titlebar #title {
+        font-weight: bold;
+        font-size: 18px;
+        user-select: none;
+        color: var(--text-color);
+      }
+
+      #tabs {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-left: 20px;
+      }
+
+      .tab {
+        cursor: pointer;
+        padding: 6px 14px;
+        font-size: 16px;
+        border-radius: 6px;
+        user-select: none;
+        color: var(--text-color);
+        transition: background-color 0.2s ease;
+      }
+
+      .tab:hover {
+        background-color: #bbb;
+      }
+
+      .tab.active {
+        background-color: var(--active-tab-bg);
+        color: var(--active-tab-color);
+        font-weight: bold;
+      }
+
+      #window-controls {
+        display: flex;
+        gap: 10px;
+      }
+
+      button {
+        background: transparent;
+        border: none;
+        color: var(--text-color);
+        font-size: 18px;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        outline: none;
+        border-radius: 6px;
+        transition: background-color 0.2s ease;
+      }
+
+      button:hover {
+        background: #333;
+        color: white;
+      }
+
+      #content-area {
+        padding: 20px;
+        height: calc(100vh - 50px);
+        overflow-y: auto;
+        position: relative;
+        z-index: 1;
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      #about-me {
+        font-size: 18px;
+        line-height: 1.4;
+        max-width: 900px;
+        margin: auto;
+      }
+
+      #about-me h2 {
+        text-align: center;
+        margin-top: 0;
+        margin-bottom: 15px;
+      }
+
+      #about-me p {
+        text-align: center;
+        max-width: 700px;
+        margin: auto;
+        padding: 20px;
+        border: 2px solid #888;
+        border-radius: 10px;
+        background-color: #f8f8f8;
+        box-shadow: 0 0 10px rgba(255, 102, 0, 0.5), 
+                    0 0 20px rgba(255, 102, 0, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      body.dark-mode #about-me p {
+        background-color: #222;
+        border-color: #555;
+      }
+
+      #socials {
+        max-width: 600px;
+        margin: auto;
+        font-size: 18px;
+        text-align: center;
+      }
+
+      #socials h2 {
+        margin-bottom: 20px;
+      }
+
+      .social-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 30px;
+      }
+
+      .social-button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: var(--text-color);
+        transition: transform 0.2s ease;
+      }
+
+      .social-button:hover {
+        transform: scale(1.05);
+      }
+
+      .social-icon {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 10px;
+        border-radius: 50%;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .social-name {
+        font-weight: bold;
+      }
+
+      .coming-soon {
+        font-size: 24px;
+        text-align: center;
+        margin-top: 50px;
+        color: var(--text-color);
+      }
+
+      #clips {
+        max-width: 600px;
+        margin: auto;
+        font-size: 18px;
+      }
+
+      #rl-settings {
+        max-width: 800px;
+        margin: auto;
+        font-size: 18px;
+        text-align: center;
+      }
+
+      .settings-image {
+        max-width: 100%;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+      }
+
+      #upload-clips {
+        max-width: 600px;
+        margin: auto;
+        font-size: 18px;
+        text-align: center;
+      }
+
+      #settings-page {
+        max-width: 600px;
+        margin: auto;
+      }
+
+      .toggle-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 20px auto;
+        max-width: 300px;
+      }
+
+      .toggle-label {
+        margin-right: 15px;
+        font-size: 18px;
+        user-select: none;
+        flex: 1;
+        text-align: left;
+      }
+
+      .toggle-switch {
+        flex-shrink: 0;
+        position: relative;
+        width: 50px;
+        height: 24px;
+      }
+
+      .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #555;
+        transition: 0.4s;
+        border-radius: 24px;
+      }
+
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+      }
+
+      input:checked + .slider {
+        background-color: var(--toggle-checked-bg);
+      }
+
+      input:checked + .slider:before {
+        transform: translateX(26px);
+      }
+
+      .background-selector {
+        margin-top: 30px;
+        text-align: center;
+      }
+
+      .background-option {
+        display: inline-block;
+        margin: 10px;
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+
+      .background-option:hover {
+        transform: scale(1.05);
+      }
+
+      .background-preview {
+        width: 200px;
+        height: 120px;
+        border: 2px solid #ccc;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 8px;
+      }
+
+      .background-preview iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        pointer-events: none;
+      }
+
+      .background-name {
+        font-weight: bold;
+      }
+
+      .selected-background {
+        border-color: #ff6600;
+        box-shadow: 0 0 10px rgba(255, 102, 0, 0.5);
+      }
+
+      /* Background styles */
+      .orange-gradient-bg {
+        margin: 0;
+        height: 100vh;
+        background: linear-gradient(270deg, #ffcc80, #ffa726, #fb8c00, #f57c00, #ef6c00, #e65100, #ffb74d);
+        background-size: 1400% 1400%;
+        animation: gradientShift 20s ease infinite;
+      }
+
+      @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+
+      .orange-lightning-bg {
+        margin: 0;
+        background-color: #000;
+        overflow: hidden;
+        height: 100vh;
+      }
+
+      .lightning {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(255,140,0,0.1) 0%, rgba(0,0,0,0.9) 80%);
+        animation: flash 3s infinite ease-in-out;
+      }
+
+      @keyframes flash {
+        0%, 100% { opacity: 0.2; }
+        50% { opacity: 0.8; background-color: rgba(255, 165, 0, 0.1); }
+      }
+
+      /* For the window frame simulation */
+      .window-frame {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1000;
+        border: 1px solid #888;
+        box-sizing: border-box;
+      }
+
+      /* Hide window controls on non-windows */
+      .no-window-controls #window-controls {
+        display: none;
+      }
+
+      /* Live Chat Styles */
+      #live-chat {
+        max-width: 800px;
+        margin: auto;
+        height: calc(100vh - 150px);
+        display: flex;
+        flex-direction: column;
+      }
+
+      #chat-container {
+        flex: 1;
+        border: 2px solid #888;
+        border-radius: 10px;
+        background-color: #f8f8f8;
+        padding: 15px;
+        overflow-y: auto;
+        margin-bottom: 15px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      body.dark-mode #chat-container {
+        background-color: #222;
+        border-color: #555;
+      }
+
+      #chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        margin-bottom: 15px;
+      }
+
+      .message {
+        margin-bottom: 10px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        background-color: #e9e9e9;
+        max-width: 70%;
+        word-wrap: break-word;
+      }
+
+      body.dark-mode .message {
+        background-color: #333;
+        color: #eee;
+      }
+
+      .message.user {
+        align-self: flex-end;
+        background-color: #ff6600;
+        color: white;
+      }
+
+      body.dark-mode .message.user {
+        background-color: #ff8533;
+      }
+
+      .message-username {
+        font-weight: bold;
+        margin-bottom: 4px;
+      }
+
+      #chat-form {
+        display: flex;
+        gap: 10px;
+      }
+
+      #username-input {
+        flex: 0 0 120px;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      #message-input {
+        flex: 1;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      #send-button {
+        padding: 8px 15px;
+        background-color: #ff6600;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      #send-button:hover {
+        background-color: #e65c00;
+      }
+    </style>
+</head>
+<body>
+    <div id="app-container">
+      <div id="background-container"></div>
+      
+      <div id="titlebar">
+        <div id="titlebar-left">
+          <img src="https://cdn.discordapp.com/attachments/1368649179810889848/1390930670880034906/raw.png?ex=686b5e22&is=686a0ca2&hm=3bb7d79945449a48cdac2c317ecd71b5e1afa8fde10f8c28420fb866c0ebb805&" alt="Profile Pic" />
+          <div id="title">SOLARS-APP</div>
+          <div id="tabs">
+            <div class="tab active" data-tab="about-me">About Me</div>
+            <div class="tab" data-tab="socials">Socials</div>
+            <div class="tab" data-tab="clips">Clips</div>
+            <div class="tab" data-tab="rl-settings">Rocket League Settings</div>
+            <div class="tab" data-tab="upload-clips">Upload Your Clips</div>
+            <div class="tab" data-tab="live-chat">Live Chat</div>
+            <div class="tab" data-tab="settings-page">Settings</div>
+          </div>
+        </div>
+
+        <div id="window-controls">
+          <button id="min-btn" title="Minimize">–</button>
+          <button id="max-btn" title="Maximize">□</button>
+          <button id="close-btn" title="Close">×</button>
+        </div>
+      </div>
+
+      <div id="content-area">
+        <div id="about-me" class="tab-content active">
+          <h2>About Me</h2>
+          <p>Hey! Welcome to my app where you can discover interesting facts about me and learn what I'm all about. I'm Grand Champion in 2v2 and also a freestyler who's trying to improve each day to make it to the top. Take a look around to find out more!</p>
+        </div>
+
+        <div id="socials" class="tab-content">
+          <h2>My Socials</h2>
+          <div class="social-buttons">
+            <a href="https://www.youtube.com/@Solar%E7%BD%90" target="_blank" class="social-button">
+              <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="YouTube" class="social-icon">
+              <span class="social-name">YouTube</span>
+            </a>
+            <a href="https://www.tiktok.com/@solar.edits007" target="_blank" class="social-button">
+              <img src="https://cdn-icons-png.flaticon.com/512/3046/3046126.png" alt="TikTok" class="social-icon">
+              <span class="social-name">TikTok</span>
+            </a>
+          </div>
+        </div>
+
+        <div id="clips" class="tab-content">
+          <h2>Clips</h2>
+          <div class="coming-soon">Coming Soon</div>
+        </div>
+
+        <div id="rl-settings" class="tab-content">
+          <h2>Rocket League Settings</h2>
+          <img src="https://cdn.discordapp.com/attachments/1368649179810889848/1390937961750728874/Screenshot_2025-07-05_021019.png?ex=686b64ec&is=686a136c&hm=bdd9dd2fd16357d7e65a7d04565ad7d449d86b9d3db31ce1b4d2a7c233bb88f5&" class="settings-image" alt="Rocket League Settings 1">
+          <img src="https://cdn.discordapp.com/attachments/1368649179810889848/1390938136737087508/Screenshot_2025-07-05_021114.png?ex=686b6516&is=686a1396&hm=0d310d62f9450b338b2ced738b1e41e11267a135b3512548448f86bf13cc5a97&" class="settings-image" alt="Rocket League Settings 2">
+          <img src="https://cdn.discordapp.com/attachments/1368649179810889848/1390938353108783165/Screenshot_2025-07-05_021211.png?ex=686b6549&is=686a13c9&hm=4e21b1913c5c2acff4f196180cb264eb1f3d8943c3054a7762bd4c5b01187e2d&" class="settings-image" alt="Rocket League Settings 3">
+        </div>
+
+        <div id="upload-clips" class="tab-content">
+          <h2>Upload Your Clips</h2>
+          <div class="coming-soon">Coming Soon</div>
+        </div>
+
+        <div id="live-chat" class="tab-content">
+          <h2>Live Chat</h2>
+          <div id="chat-container">
+            <div id="chat-messages"></div>
+            <form id="chat-form">
+              <input type="text" id="username-input" placeholder="Your name" required>
+              <input type="text" id="message-input" placeholder="Type your message..." required>
+              <button type="submit" id="send-button">Send</button>
+            </form>
+          </div>
+        </div>
+
+        <div id="settings-page" class="tab-content">
+          <div class="toggle-container">
+            <label class="toggle-label" for="darkmode-toggle">Enable Dark Mode</label>
+            <label class="toggle-switch">
+              <input type="checkbox" id="darkmode-toggle" />
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="background-selector">
+            <h3>Select Background</h3>
+            <div class="background-option" data-bg="default">
+              <div class="background-preview selected-background">
+                <iframe srcdoc="<body style='margin:0;background:#f0f0f0;display:flex;justify-content:center;align-items:center;height:100%;'><div style='font-size:16px;color:#333;'>Default Background</div></body>"></iframe>
+              </div>
+              <div class="background-name">Default</div>
+            </div>
+            <div class="background-option" data-bg="orange-gradient">
+              <div class="background-preview">
+                <iframe srcdoc="<body style='margin:0;height:100vh;background:linear-gradient(270deg,#ffcc80,#ffa726,#fb8c00,#f57c00,#ef6c00,#e65100,#ffb74d);background-size:1400%1400%;animation:gradientShift20seaseinfinite;'><style>@keyframesgradientShift{0%{background-position:0%50%}50%{background-position:100%50%}100%{background-position:0%50%}}</style></body>"></iframe>
+              </div>
+              <div class="background-name">Orange Gradient</div>
+            </div>
+            <div class="background-option" data-bg="orange-lightning">
+              <div class="background-preview">
+                <iframe srcdoc="<body style='margin:0;background-color:#000;overflow:hidden;height:100vh;'><div style='position:absolute;width:100%;height:100%;background:radial-gradient(circle,rgba(255,140,0,0.1)0%,rgba(0,0,0,0.9)80%);animation:flash3sinfiniteease-in-out;'></div><style>@keyframesflash{0%,100%{opacity:0.2}50%{opacity:0.8;background-color:rgba(255,165,0,0.1)}}</style></body>"></iframe>
+              </div>
+              <div class="background-name">Orange Lightning</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="window-frame"></div>
+
+    <script>
+      // Tab switching logic
+      const tabs = document.querySelectorAll('.tab');
+      const contents = document.querySelectorAll('.tab-content');
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const target = tab.getAttribute('data-tab');
+
+          tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+
+          contents.forEach(c => {
+            if (c.id === target) {
+              c.classList.add('active');
+            } else {
+              c.classList.remove('active');
+            }
+          });
+        });
+      });
+
+      // Window controls - these won't work in a browser but are kept for visual consistency
+      document.getElementById('min-btn').addEventListener('click', () => {
+        // In a real browser, this would do nothing
+        console.log('Minimize clicked');
+      });
+
+      document.getElementById('max-btn').addEventListener('click', () => {
+        // In a real browser, this would do nothing
+        console.log('Maximize clicked');
+      });
+
+      document.getElementById('close-btn').addEventListener('click', () => {
+        // In a real browser, this would close the tab/window if allowed
+        console.log('Close clicked');
+      });
+
+      // Dark mode toggle logic
+      const darkToggle = document.getElementById('darkmode-toggle');
+      darkToggle.addEventListener('change', (e) => {
+        if (e.target.checked) {
+          document.documentElement.style.setProperty('--bg-color', '#121212');
+          document.documentElement.style.setProperty('--text-color', '#eee');
+          document.documentElement.style.setProperty('--titlebar-color', '#222');
+          document.body.classList.add('dark-mode');
+        } else {
+          document.documentElement.style.setProperty('--bg-color', '#f0f0f0');
+          document.documentElement.style.setProperty('--text-color', '#222');
+          document.documentElement.style.setProperty('--titlebar-color', '#dddddd');
+          document.body.classList.remove('dark-mode');
+        }
+      });
+
+      // Background selection logic
+      const backgroundOptions = document.querySelectorAll('.background-option');
+      const backgroundContainer = document.getElementById('background-container');
+      
+      // Function to set background
+      function setBackground(bgType) {
+        let bgHTML = '';
+        
+        switch(bgType) {
+          case 'orange-gradient':
+            bgHTML = '<div class="orange-gradient-bg"></div>';
+            break;
+          case 'orange-lightning':
+            bgHTML = '<div class="orange-lightning-bg"><div class="lightning"></div></div>';
+            break;
+          default:
+            bgHTML = '';
+        }
+        
+        backgroundContainer.innerHTML = bgHTML;
+        
+        // Update selected visual
+        backgroundOptions.forEach(opt => {
+          opt.querySelector('.background-preview').classList.remove('selected-background');
+        });
+        document.querySelector(`.background-option[data-bg="${bgType}"] .background-preview`).classList.add('selected-background');
+      }
+
+      // Set initial background
+      setBackground('default');
+
+      // Handle background selection
+      backgroundOptions.forEach(option => {
+        option.addEventListener('click', () => {
+          const bgType = option.getAttribute('data-bg');
+          setBackground(bgType);
+        });
+      });
+
+      // Check if we're in a browser (not Electron) and hide window controls
+      if (typeof window.process === 'undefined') {
+        document.body.classList.add('no-window-controls');
+      }
+
+      // Live Chat Functionality
+      const chatForm = document.getElementById('chat-form');
+      const messageInput = document.getElementById('message-input');
+      const usernameInput = document.getElementById('username-input');
+      const chatMessages = document.getElementById('chat-messages');
+
+      // Load messages from localStorage if available
+      let messages = JSON.parse(localStorage.getItem('chatMessages')) || [];
+      
+      // Display existing messages
+      function displayMessages() {
+        chatMessages.innerHTML = '';
+        messages.forEach(msg => {
+          const messageElement = document.createElement('div');
+          messageElement.classList.add('message');
+          if (msg.username === usernameInput.value) {
+            messageElement.classList.add('user');
+          }
+          messageElement.innerHTML = `
+            <div class="message-username">${msg.username}</div>
+            <div class="message-text">${msg.text}</div>
+          `;
+          chatMessages.appendChild(messageElement);
+        });
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      displayMessages();
+
+      // Handle new messages
+      chatForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const username = usernameInput.value.trim();
+        const messageText = messageInput.value.trim();
+        
+        if (username && messageText) {
+          const newMessage = {
+            username,
+            text: messageText,
+            timestamp: new Date().toISOString()
+          };
+          
+          messages.push(newMessage);
+          
+          // Save to localStorage
+          localStorage.setItem('chatMessages', JSON.stringify(messages));
+          
+          // Display the new message
+          displayMessages();
+          
+          // Clear the message input
+          messageInput.value = '';
+          
+          // Keep focus on message input
+          messageInput.focus();
+        }
+      });
+
+      // Simple "real-time" update simulation
+      // In a real app, you would use WebSockets or similar technology
+      setInterval(() => {
+        const storedMessages = JSON.parse(localStorage.getItem('chatMessages')) || [];
+        if (storedMessages.length !== messages.length) {
+          messages = storedMessages;
+          displayMessages();
+        }
+      }, 1000);
+    </script>
+</body>
+</html>
